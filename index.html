@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سامانه حضور هوشمند کلاس</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1923;
+    --paper: #f7f4ef;
+    --slate: #2d3e50;
+    --sky: #4a90d9;
+    --sky-deep: #2c6fad;
+    --signal: #e84545;
+    --safe: #27ae60;
+    --amber: #f39c12;
+    --mist: #eef2f7;
+    --border: #dde3ea;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Vazirmatn', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 3rem;
+    border-bottom: 1px solid var(--border);
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--slate);
+    text-decoration: none;
+  }
+
+  .nav-logo .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--sky);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .6; transform: scale(1.4); }
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    padding: 5rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 70% 40%, rgba(74,144,217,.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 60%, rgba(44,111,173,.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    max-width: 780px;
+    text-align: center;
+    position: relative;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    background: rgba(74,144,217,.1);
+    color: var(--sky-deep);
+    border: 1px solid rgba(74,144,217,.25);
+    border-radius: 100px;
+    padding: .4rem 1rem;
+    font-size: .8rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    letter-spacing: .02em;
+  }
+
+  .badge::before {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--sky);
+    animation: pulse 2s infinite;
+  }
+
+  h1 {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--slate);
+    margin-bottom: 1.2rem;
+    letter-spacing: -.01em;
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--sky-deep);
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: #6b7a8d;
+    max-width: 520px;
+    margin: 0 auto 3rem;
+    line-height: 1.75;
+    font-weight: 400;
+  }
+
+  .cta-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .9rem 2.2rem;
+    border-radius: 12px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all .2s ease;
+  }
+
+  .btn-primary {
+    background: var(--sky-deep);
+    color: white;
+    box-shadow: 0 4px 20px rgba(44,111,173,.35);
+  }
+
+  .btn-primary:hover {
+    background: var(--sky);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(44,111,173,.4);
+  }
+
+  .btn-outline {
+    background: white;
+    color: var(--slate);
+    border: 1.5px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--sky);
+    color: var(--sky-deep);
+    transform: translateY(-2px);
+  }
+
+  /* ─── FEATURE STRIP ─── */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 4rem auto 0;
+    padding: 0 2rem;
+    width: 100%;
+  }
+
+  .feat {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.8rem;
+    text-align: right;
+    transition: box-shadow .2s;
+  }
+
+  .feat:hover { box-shadow: 0 8px 30px rgba(0,0,0,.08); }
+
+  .feat-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .feat h3 {
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--slate);
+    margin-bottom: .4rem;
+  }
+
+  .feat p {
+    font-size: .82rem;
+    color: #8a96a5;
+    line-height: 1.65;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: #aab0bb;
+    font-size: .82rem;
+    border-top: 1px solid var(--border);
+    margin-top: 4rem;
+  }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,25,35,.5);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    place-items: center;
+  }
+
+  .modal-overlay.open { display: grid; }
+
+  .modal {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    width: min(90vw, 420px);
+    box-shadow: 0 24px 80px rgba(0,0,0,.2);
+    animation: slideUp .25s ease;
+    text-align: right;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--slate);
+    margin-bottom: .4rem;
+  }
+
+  .modal p {
+    font-size: .88rem;
+    color: #8a96a5;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .field {
+    margin-bottom: 1rem;
+  }
+
+  .field label {
+    display: block;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--slate);
+    margin-bottom: .4rem;
+  }
+
+  .field input {
+    width: 100%;
+    padding: .75rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: .95rem;
+    color: var(--ink);
+    background: var(--mist);
+    outline: none;
+    transition: border-color .2s;
+    text-align: right;
+  }
+
+  .field input:focus { border-color: var(--sky); background: white; }
+
+  .modal-actions {
+    display: flex;
+    gap: .8rem;
+    margin-top: 1.5rem;
+    flex-direction: column;
+  }
+
+  .btn-close {
+    background: none;
+    border: none;
+    color: #8a96a5;
+    font-size: .88rem;
+    cursor: pointer;
+    font-family: 'Vazirmatn', sans-serif;
+    padding: .5rem;
+  }
+
+  .btn-close:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="dot"></div>
+    سامانه حضور هوشمند
+  </a>
+</nav>
+
+<main class="hero">
+  <div class="hero-inner">
+    <div class="badge">حفظ کامل حریم خصوصی · بدون ذخیره تصویر</div>
+
+    <h1>حضور دانش‌آموز را<br><em>هوشمند</em> رصد کنید</h1>
+
+    <p class="hero-sub">
+      سیستم تشخیص حضور بر پایه دوربین — فقط وجود یا عدم وجود دانش‌آموز را تشخیص می‌دهد، نه تصویر او را. پس از ۵ دقیقه غیبت، به معلم هشدار فوری ارسال می‌شود.
+    </p>
+
+    <div class="cta-group">
+      <button class="btn btn-primary" onclick="openTeacherModal()">
+        🎓 ورود به عنوان معلم
+      </button>
+      <button class="btn btn-outline" onclick="openStudentModal()">
+        👤 ورود به عنوان دانش‌آموز
+      </button>
+    </div>
+
+    <div class="features">
+      <div class="feat">
+        <span class="feat-icon">🔒</span>
+        <h3>حریم خصوصی کامل</h3>
+        <p>هیچ تصویری ذخیره یا ارسال نمی‌شود. فقط وضعیت حضور/غیاب.</p>
+      </div>
+      <div class="feat">
+        <span class="feat-icon">⏱️</span>
+        <h3>هشدار ۵ دقیقه‌ای</h3>
+        <p>اگر دانش‌آموز ۵ دقیقه جلوی دوربین نباشد، معلم هشدار دریافت می‌کند.</p>
+      </div>
+      <div class="feat">
+        <span class="feat-icon">📡</span>
+        <h3>لحظه‌ای و زنده</h3>
+        <p>وضعیت تمام دانش‌آموزان به‌صورت آنلاین در داشبورد معلم نمایش داده می‌شود.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  ساخته‌شده با ❤️ برای کلاس‌های آنلاین · حریم خصوصی همیشه محترم شمرده می‌شود
+</footer>
+
+<!-- Teacher Modal -->
+<div class="modal-overlay" id="teacherModal">
+  <div class="modal">
+    <h2>🎓 ورود معلم</h2>
+    <p>یک جلسه جدید بسازید و کد آن را با دانش‌آموزان به اشتراک بگذارید.</p>
+    <div class="field">
+      <label>نام شما</label>
+      <input type="text" id="teacherName" placeholder="مثال: استاد احمدی" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="createSession()">ساخت جلسه و ورود</button>
+      <button class="btn-close" onclick="closeModals()">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<!-- Student Modal -->
+<div class="modal-overlay" id="studentModal">
+  <div class="modal">
+    <h2>👤 ورود دانش‌آموز</h2>
+    <p>کد جلسه‌ای که معلم به شما داده را وارد کنید.</p>
+    <div class="field">
+      <label>نام شما</label>
+      <input type="text" id="studentName" placeholder="مثال: علی رضایی" />
+    </div>
+    <div class="field">
+      <label>کد جلسه</label>
+      <input type="text" id="sessionCode" placeholder="مثال: A1B2C3D4" style="letter-spacing:.1em; text-transform:uppercase" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="joinSession()">ورود به جلسه</button>
+      <button class="btn-close" onclick="closeModals()">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = window.location.origin;
+
+function openTeacherModal() {
+  document.getElementById('teacherModal').classList.add('open');
+}
+function openStudentModal() {
+  document.getElementById('studentModal').classList.add('open');
+}
+function closeModals() {
+  document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModals();
+  });
+});
+
+async function createSession() {
+  const name = document.getElementById('teacherName').value.trim() || 'معلم';
+  const res = await fetch(`${API}/api/session/create`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({teacher_name: name})
+  });
+  const data = await res.json();
+  sessionStorage.setItem('session_id', data.session_id);
+  sessionStorage.setItem('teacher_name', name);
+  window.location.href = '/teacher';
+}
+
+async function joinSession() {
+  const name = document.getElementById('studentName').value.trim() || 'دانش‌آموز';
+  const code = document.getElementById('sessionCode').value.trim().toUpperCase();
+  if (!code) { alert('لطفاً کد جلسه را وارد کنید'); return; }
+
+  const res = await fetch(`${API}/api/session/${code}/join`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({student_name: name})
+  });
+  const data = await res.json();
+  if (data.error) { alert('کد جلسه اشتباه است!'); return; }
+
+  sessionStorage.setItem('session_id', code);
+  sessionStorage.setItem('student_id', data.student_id);
+  sessionStorage.setItem('student_name', name);
+  window.location.href = '/student';
+}
+</script>
+</body>
+</html>

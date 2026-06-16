@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>داشبورد معلم — سامانه حضور هوشمند</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1923;
+    --paper: #f4f6f9;
+    --slate: #2d3e50;
+    --sky: #4a90d9;
+    --sky-deep: #2c6fad;
+    --signal: #e84545;
+    --safe: #27ae60;
+    --amber: #f39c12;
+    --card: white;
+    --border: #dde3ea;
+    --muted: #8a96a5;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Vazirmatn', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ─── TOP BAR ─── */
+  .topbar {
+    background: var(--slate);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .session-badge {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 10px;
+    padding: .5rem 1.2rem;
+    font-size: .9rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    cursor: pointer;
+    transition: background .15s;
+    user-select: all;
+  }
+
+  .session-badge:hover { background: rgba(255,255,255,.2); }
+
+  .session-badge .label {
+    font-size: .72rem;
+    font-weight: 400;
+    opacity: .65;
+    letter-spacing: 0;
+  }
+
+  .live-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    animation: pulse 1.8s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .5; transform: scale(1.5); }
+  }
+
+  .topbar h1 {
+    font-size: 1rem;
+    font-weight: 600;
+    opacity: .9;
+  }
+
+  /* ─── ALERTS BANNER ─── */
+  #alertsBanner {
+    display: none;
+    background: #fef3cd;
+    border-bottom: 2px solid var(--amber);
+    padding: .75rem 2rem;
+  }
+
+  #alertsBanner.show { display: block; }
+
+  .alert-list {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+
+  .alert-item {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    font-size: .88rem;
+    color: #7a5000;
+    font-weight: 500;
+    animation: alertIn .3s ease;
+  }
+
+  @keyframes alertIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── STATS BAR ─── */
+  .stats {
+    display: flex;
+    gap: 1rem;
+    padding: 1.2rem 2rem;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 140px;
+  }
+
+  .stat-icon { font-size: 1.6rem; }
+
+  .stat-info label {
+    font-size: .72rem;
+    color: var(--muted);
+    font-weight: 500;
+    display: block;
+    margin-bottom: .15rem;
+  }
+
+  .stat-info .val {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--slate);
+  }
+
+  .val.green { color: var(--safe); }
+  .val.red   { color: var(--signal); }
+
+  /* ─── GRID ─── */
+  .section-title {
+    padding: 0 2rem .6rem;
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--muted);
+  }
+
+  .students-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    padding: 0 2rem 2rem;
+  }
+
+  .student-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 1.4rem 1.2rem;
+    position: relative;
+    transition: all .25s ease;
+    overflow: hidden;
+  }
+
+  .student-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; left: 0;
+    height: 4px;
+    border-radius: 16px 16px 0 0;
+    background: var(--border);
+    transition: background .3s;
+  }
+
+  .student-card.present::before  { background: var(--safe); }
+  .student-card.absent::before   { background: var(--signal); }
+  .student-card.warning::before  { background: var(--amber); }
+
+  .student-card.absent {
+    border-color: rgba(232,69,69,.25);
+    background: rgba(232,69,69,.03);
+  }
+
+  .student-card.warning {
+    border-color: rgba(243,156,18,.3);
+    background: rgba(243,156,18,.04);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    margin-bottom: 1rem;
+  }
+
+  .avatar {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 1.2rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    background: var(--paper);
+    color: var(--slate);
+    border: 1.5px solid var(--border);
+  }
+
+  .student-card.present .avatar  { background: rgba(39,174,96,.1);  color: var(--safe);   border-color: rgba(39,174,96,.2); }
+  .student-card.absent .avatar   { background: rgba(232,69,69,.1);  color: var(--signal); border-color: rgba(232,69,69,.2); }
+  .student-card.warning .avatar  { background: rgba(243,156,18,.1); color: var(--amber);  border-color: rgba(243,156,18,.2); }
+
+  .card-info { flex: 1; min-width: 0; }
+
+  .card-info .name {
+    font-weight: 700;
+    font-size: .95rem;
+    color: var(--slate);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-info .since {
+    font-size: .75rem;
+    color: var(--muted);
+    margin-top: .15rem;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .3rem .8rem;
+    border-radius: 100px;
+    font-size: .78rem;
+    font-weight: 600;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .status-pill.present { background: rgba(39,174,96,.12);  color: #1a8a48; }
+  .status-pill.absent  { background: rgba(232,69,69,.12);  color: #c0392b; }
+  .status-pill.warning { background: rgba(243,156,18,.12); color: #c87f05; }
+
+  .absence-bar {
+    margin-top: .8rem;
+    background: var(--paper);
+    border-radius: 100px;
+    height: 5px;
+    overflow: hidden;
+    display: none;
+  }
+
+  .student-card.absent .absence-bar,
+  .student-card.warning .absence-bar {
+    display: block;
+  }
+
+  .absence-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: var(--signal);
+    transition: width .5s ease;
+  }
+
+  .student-card.warning .absence-fill { background: var(--amber); }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+  }
+
+  .empty-state .emoji { font-size: 3rem; margin-bottom: 1rem; display: block; }
+  .empty-state p { font-size: .95rem; }
+
+  /* ─── TOAST ─── */
+  #toastContainer {
+    position: fixed;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+    pointer-events: none;
+  }
+
+  .toast {
+    background: var(--signal);
+    color: white;
+    border-radius: 14px;
+    padding: .9rem 1.5rem;
+    font-size: .92rem;
+    font-weight: 600;
+    box-shadow: 0 8px 30px rgba(232,69,69,.4);
+    animation: toastIn .3s ease, toastOut .3s ease 4.7s forwards;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    min-width: 280px;
+    justify-content: center;
+    pointer-events: auto;
+  }
+
+  @keyframes toastIn  { from { opacity: 0; transform: translateY(-12px) scale(.95); } }
+  @keyframes toastOut { to   { opacity: 0; transform: translateY(-8px) scale(.95); } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="live-dot"></div>
+    <h1 id="teacherNameLabel">داشبورد معلم</h1>
+  </div>
+  <div class="session-badge" onclick="copyCode()" title="کلیک برای کپی">
+    <span class="label">کد جلسه</span>
+    <strong id="sessionCode">—</strong>
+    📋
+  </div>
+</div>
+
+<div id="alertsBanner">
+  <div class="alert-list" id="alertList"></div>
+</div>
+
+<div class="stats">
+  <div class="stat-card">
+    <div class="stat-icon">👥</div>
+    <div class="stat-info">
+      <label>کل دانش‌آموزان</label>
+      <div class="val" id="totalCount">0</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">✅</div>
+    <div class="stat-info">
+      <label>حاضر</label>
+      <div class="val green" id="presentCount">0</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">🚨</div>
+    <div class="stat-info">
+      <label>غایب</label>
+      <div class="val red" id="absentCount">0</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">وضعیت دانش‌آموزان</div>
+<div class="students-grid" id="studentsGrid">
+  <div class="empty-state">
+    <span class="emoji">⏳</span>
+    <p>در انتظار ورود دانش‌آموزان…<br>کد جلسه را با آن‌ها به اشتراک بگذارید.</p>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+  const API = window.location.origin;
+  const WS_BASE = API.replace('http', 'ws');
+
+  const sessionId = sessionStorage.getItem('session_id');
+  const teacherName = sessionStorage.getItem('teacher_name') || 'معلم';
+
+  if (!sessionId) { window.location.href = '/'; }
+
+  document.getElementById('sessionCode').textContent = sessionId;
+  document.getElementById('teacherNameLabel').textContent = `داشبورد ${teacherName}`;
+
+  function copyCode() {
+    navigator.clipboard.writeText(sessionId).then(() => showToast('✅ کد کپی شد: ' + sessionId, 'green'));
+  }
+
+  let studentData = {};
+  let alertLog = [];
+
+  function showToast(msg, type = 'red') {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    if (type === 'green') t.style.background = '#1a8a48';
+    t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(() => t.remove(), 5000);
+  }
+
+  function getInitial(name) {
+    return name ? name.charAt(0) : '؟';
+  }
+
+  function timeAgo(isoStr) {
+    if (!isoStr) return '';
+    const diff = Math.floor((Date.now() - new Date(isoStr)) / 1000);
+    if (diff < 60) return `${diff} ثانیه پیش`;
+    if (diff < 3600) return `${Math.floor(diff/60)} دقیقه پیش`;
+    return `${Math.floor(diff/3600)} ساعت پیش`;
+  }
+
+  function renderStudents() {
+    const grid = document.getElementById('studentsGrid');
+    const students = Object.values(studentData);
+
+    if (students.length === 0) {
+      grid.innerHTML = `<div class="empty-state"><span class="emoji">⏳</span><p>در انتظار ورود دانش‌آموزان…<br>کد جلسه را با آن‌ها به اشتراک بگذارید.</p></div>`;
+      return;
+    }
+
+    // Sort: absent first
+    students.sort((a, b) => (a.present === b.present) ? 0 : a.present ? 1 : -1);
+
+    document.getElementById('totalCount').textContent = students.length;
+    document.getElementById('presentCount').textContent = students.filter(s => s.present).length;
+    document.getElementById('absentCount').textContent  = students.filter(s => !s.present).length;
+
+    grid.innerHTML = students.map(s => {
+      const isAbsent = !s.present;
+      const absenceSec = s.absence_seconds || 0;
+      const pct = Math.min(100, (absenceSec / 300) * 100);
+      const isWarning = isAbsent && absenceSec > 0 && absenceSec < 300;
+      const isAlarm   = isAbsent && absenceSec >= 300;
+
+      let stateClass = 'present';
+      let statusText = 'حاضر';
+      let emoji = '✅';
+
+      if (isAlarm)   { stateClass = 'absent';  statusText = 'غایب — هشدار!'; emoji = '🚨'; }
+      else if (isWarning) { stateClass = 'warning'; statusText = 'احتمال غیاب'; emoji = '⚠️'; }
+
+      return `
+        <div class="student-card ${stateClass}">
+          <div class="card-top">
+            <div class="avatar">${getInitial(s.name)}</div>
+            <div class="card-info">
+              <div class="name">${s.name}</div>
+              <div class="since">${timeAgo(s.last_seen)}</div>
+            </div>
+          </div>
+          <div class="status-pill ${stateClass}">${emoji} ${statusText}</div>
+          <div class="absence-bar">
+            <div class="absence-fill" style="width:${pct}%"></div>
+          </div>
+          ${isAbsent && absenceSec > 0 ? `<div style="margin-top:.5rem;font-size:.75rem;color:#8a96a5;text-align:center">${Math.floor(absenceSec/60)} دقیقه ${absenceSec%60} ثانیه غایب</div>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function addAlert(studentName, minutes) {
+    const banner = document.getElementById('alertsBanner');
+    const list   = document.getElementById('alertList');
+    banner.classList.add('show');
+
+    const now = new Date().toLocaleTimeString('fa-IR');
+    const item = document.createElement('div');
+    item.className = 'alert-item';
+    item.innerHTML = `🚨 <strong>${studentName}</strong> — ${minutes} دقیقه غایب است (${now})`;
+    list.prepend(item);
+
+    showToast(`🚨 ${studentName} ${minutes} دقیقه است جلوی دوربین نیست!`);
+
+    // Native notification
+    if (Notification.permission === 'granted') {
+      new Notification(`غیبت دانش‌آموز`, {
+        body: `${studentName} بیش از ${minutes} دقیقه جلوی دوربین نیست`,
+        icon: '/favicon.ico'
+      });
+    }
+  }
+
+  // Request notification permission
+  if (Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  // WebSocket connection
+  function connectWS() {
+    const ws = new WebSocket(`${WS_BASE}/ws/teacher/${sessionId}`);
+
+    ws.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+
+      if (msg.type === 'init') {
+        const s = msg.session;
+        if (s && s.students) {
+          Object.values(s.students).forEach(st => { studentData[st.id] = st; });
+          renderStudents();
+        }
+      }
+
+      if (msg.type === 'update') {
+        msg.students.forEach(st => { studentData[st.id] = { ...studentData[st.id], ...st }; });
+        renderStudents();
+      }
+
+      if (msg.type === 'alert') {
+        addAlert(msg.student_name, msg.absence_minutes);
+      }
+    };
+
+    ws.onclose = () => setTimeout(connectWS, 3000);
+    ws.onerror = () => ws.close();
+  }
+
+  connectWS();
+  setInterval(renderStudents, 5000); // re-render for timeAgo updates
+</script>
+</body>
+</html>
