@@ -2,320 +2,94 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>صفحه دانش‌آموز — سامانه حضور هوشمند</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1e3a5f">
+<title>صفحه دانش‌آموز — حضور هوشمند</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --ink: #0f1923;
-    --paper: #f4f6f9;
-    --slate: #2d3e50;
-    --sky: #4a90d9;
-    --sky-deep: #2c6fad;
-    --signal: #e84545;
-    --safe: #27ae60;
-    --amber: #f39c12;
-    --border: #dde3ea;
-    --muted: #8a96a5;
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:'Vazirmatn',Tahoma,Arial,sans-serif;background:#f0f4f8;color:#1a2535;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem}
+button{font-family:inherit;cursor:pointer;border:none}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root{
+  --blue:#2563eb;--blue-dark:#1d4ed8;
+  --green:#16a34a;--green-bg:rgba(22,163,74,.1);--green-border:rgba(22,163,74,.28);
+  --red:#dc2626;--red-bg:rgba(220,38,38,.08);--red-border:rgba(220,38,38,.28);
+  --amber:#d97706;--amber-bg:rgba(217,119,6,.08);--amber-border:rgba(217,119,6,.28);
+  --slate:#1e3a5f;--muted:#64748b;
+  --border:#e2e8f0;--card:#fff;
+  --radius:16px;--radius-sm:10px;
+  --shadow:0 2px 12px rgba(0,0,0,.08);
+  --shadow-md:0 6px 28px rgba(0,0,0,.12);
+}
 
-  body {
-    font-family: 'Vazirmatn', sans-serif;
-    background: var(--paper);
-    color: var(--ink);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-  }
+/* hidden camera elements */
+#camVideo,#camCanvas{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;top:-9999px;left:-9999px}
 
-  /* ─── PERMISSION SCREEN ─── */
-  #permScreen {
-    max-width: 480px;
-    width: 100%;
-    text-align: center;
-  }
+/* ── Screens ── */
+.screen{width:100%;max-width:420px;display:none;flex-direction:column;align-items:center;gap:1.1rem}
+.screen.active{display:flex}
 
-  .perm-icon {
-    font-size: 4rem;
-    margin-bottom: 1.2rem;
-  }
+/* ── Permission Screen ── */
+.perm-icon{font-size:3.5rem;text-align:center}
+.perm-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem 1.4rem;width:100%;box-shadow:var(--shadow)}
+.perm-card h1{font-size:1.25rem;font-weight:800;color:var(--slate);margin-bottom:.5rem;text-align:center}
+.perm-sub{font-size:.83rem;color:var(--muted);line-height:1.7;text-align:center;margin-bottom:1.3rem}
+.privacy-list{background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius-sm);padding:1rem 1.1rem;margin-bottom:1.3rem;display:flex;flex-direction:column;gap:.55rem}
+.priv-row{display:flex;align-items:flex-start;gap:.6rem;font-size:.82rem;color:#1e40af;line-height:1.5}
+.priv-icon{flex-shrink:0;font-size:.95rem;margin-top:.05rem}
+.btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.85rem 1rem;border-radius:var(--radius-sm);font-size:.95rem;font-weight:700;-webkit-transition:all .18s;transition:all .18s;border:none}
+.btn-primary{background:var(--blue-dark);color:#fff;box-shadow:0 4px 16px rgba(29,78,216,.28)}
+.btn-primary:hover,.btn-primary:active{background:var(--blue)}
 
-  #permScreen h1 {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--slate);
-    margin-bottom: .6rem;
-  }
+/* ── Active Screen ── */
+.ring-wrap{position:relative;width:160px;height:160px;flex-shrink:0}
+.ring-svg{width:100%;height:100%;-webkit-transform:rotate(-90deg);transform:rotate(-90deg)}
+.ring-track{fill:none;stroke:#e2e8f0;stroke-width:10}
+.ring-fill{fill:none;stroke:var(--green);stroke-width:10;stroke-linecap:round;stroke-dasharray:440;stroke-dashoffset:440;-webkit-transition:stroke-dashoffset 1s ease,stroke .3s;transition:stroke-dashoffset 1s ease,stroke .3s}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem}
+.ring-emoji{font-size:2.3rem;line-height:1}
+.ring-lbl{font-size:.75rem;font-weight:700;color:var(--muted)}
 
-  #permScreen p {
-    color: var(--muted);
-    line-height: 1.7;
-    margin-bottom: 2rem;
-    font-size: .92rem;
-  }
+.status-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.4rem 1.2rem;width:100%;text-align:center;-webkit-transition:border-color .3s,background .3s;transition:border-color .3s,background .3s;box-shadow:var(--shadow)}
+.status-card.present{border-color:var(--green-border)}
+.status-card.absent {border-color:var(--red-border);background:var(--red-bg)}
+.status-card.warning{border-color:var(--amber-border);background:var(--amber-bg)}
+.s-name{font-size:1rem;font-weight:800;color:var(--slate);margin-bottom:.3rem}
+.s-status{font-size:1rem;font-weight:700;margin-bottom:.25rem;-webkit-transition:color .3s;transition:color .3s}
+.s-status.present{color:var(--green)}
+.s-status.absent {color:var(--red)}
+.s-status.warning{color:var(--amber)}
+.s-sub{font-size:.8rem;color:var(--muted);line-height:1.65}
 
-  .privacy-box {
-    background: rgba(74,144,217,.07);
-    border: 1px solid rgba(74,144,217,.2);
-    border-radius: 14px;
-    padding: 1.2rem 1.4rem;
-    margin-bottom: 1.8rem;
-    text-align: right;
-  }
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;width:100%}
+.chip{background:var(--card);border:1px solid var(--border);border-radius:100px;padding:.35rem .8rem;font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;font-weight:500}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:var(--green);-webkit-animation:pulse 1.8s infinite;animation:pulse 1.8s infinite;flex-shrink:0}
 
-  .privacy-box .row {
-    display: flex;
-    align-items: flex-start;
-    gap: .7rem;
-    margin-bottom: .6rem;
-    font-size: .85rem;
-    color: #3b5a80;
-  }
+.timer-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem 1.1rem;width:100%;display:none}
+.timer-box.show{display:block}
+.timer-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;font-size:.8rem}
+.timer-top .tl{color:var(--muted);font-weight:500}
+.timer-top .tv{font-weight:700;color:var(--red)}
+.tbar-bg{background:#e2e8f0;border-radius:100px;height:7px;overflow:hidden}
+.tbar-fill{height:100%;border-radius:100px;background:-webkit-linear-gradient(right,var(--amber),var(--red));background:linear-gradient(to left,var(--amber),var(--red));-webkit-transition:width 1s linear;transition:width 1s linear}
 
-  .privacy-box .row:last-child { margin-bottom: 0; }
+/* ── Error Screen ── */
+.err-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem 1.4rem;width:100%;text-align:center;box-shadow:var(--shadow)}
+.err-card .ico{font-size:2.8rem;margin-bottom:.8rem}
+.err-card h2{font-size:1.1rem;font-weight:800;color:var(--slate);margin-bottom:.5rem}
+.err-card p{font-size:.83rem;color:var(--muted);line-height:1.65}
+.btn-retry{margin-top:1.1rem;background:#f1f5f9;color:var(--slate);font-weight:600;font-size:.88rem;padding:.7rem 1.2rem;border-radius:var(--radius-sm);border:1px solid var(--border);cursor:pointer;width:100%}
 
-  .privacy-box .row .icon { flex-shrink: 0; font-size: 1rem; }
+@-webkit-keyframes pulse{0%,100%{opacity:1;-webkit-transform:scale(1)}50%{opacity:.45;-webkit-transform:scale(1.45)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.45)}}
 
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: .6rem;
-    padding: .9rem 2.2rem;
-    border-radius: 12px;
-    font-family: 'Vazirmatn', sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all .2s ease;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .btn-primary {
-    background: var(--sky-deep);
-    color: white;
-    box-shadow: 0 4px 20px rgba(44,111,173,.3);
-  }
-
-  .btn-primary:hover {
-    background: var(--sky);
-    transform: translateY(-2px);
-  }
-
-  /* ─── ACTIVE SCREEN ─── */
-  #activeScreen {
-    display: none;
-    max-width: 520px;
-    width: 100%;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.2rem;
-  }
-
-  #activeScreen.show { display: flex; }
-
-  /* Status Ring */
-  .status-ring {
-    position: relative;
-    width: 180px;
-    height: 180px;
-  }
-
-  .ring-svg {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-  }
-
-  .ring-track {
-    fill: none;
-    stroke: var(--border);
-    stroke-width: 8;
-  }
-
-  .ring-fill {
-    fill: none;
-    stroke: var(--safe);
-    stroke-width: 8;
-    stroke-linecap: round;
-    stroke-dasharray: 502;
-    stroke-dashoffset: 502;
-    transition: stroke-dashoffset 1s ease, stroke .3s;
-  }
-
-  .ring-center {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: .2rem;
-  }
-
-  .ring-emoji { font-size: 2.6rem; }
-
-  .ring-label {
-    font-size: .8rem;
-    font-weight: 600;
-    color: var(--muted);
-  }
-
-  /* Status card */
-  .status-card {
-    background: white;
-    border: 1.5px solid var(--border);
-    border-radius: 20px;
-    padding: 1.8rem 2rem;
-    text-align: center;
-    width: 100%;
-    transition: border-color .3s, box-shadow .3s;
-  }
-
-  .status-card.present {
-    border-color: rgba(39,174,96,.3);
-    box-shadow: 0 4px 24px rgba(39,174,96,.1);
-  }
-
-  .status-card.absent {
-    border-color: rgba(232,69,69,.3);
-    box-shadow: 0 4px 24px rgba(232,69,69,.1);
-  }
-
-  .status-card.warning {
-    border-color: rgba(243,156,18,.3);
-    box-shadow: 0 4px 24px rgba(243,156,18,.12);
-  }
-
-  .status-card h2 {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: var(--slate);
-    margin-bottom: .3rem;
-  }
-
-  .status-text {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: .4rem;
-    transition: color .3s;
-  }
-
-  .status-text.present { color: var(--safe); }
-  .status-text.absent  { color: var(--signal); }
-  .status-text.warning { color: var(--amber); }
-
-  .status-sub {
-    font-size: .82rem;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-
-  /* Hidden video for processing */
-  #camVideo {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    width: 1px;
-    height: 1px;
-  }
-
-  #camCanvas {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    width: 1px;
-    height: 1px;
-  }
-
-  /* Info chips */
-  .chips {
-    display: flex;
-    gap: .6rem;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-  }
-
-  .chip {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    padding: .4rem .9rem;
-    font-size: .78rem;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: .4rem;
-    font-weight: 500;
-  }
-
-  .chip .dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--safe);
-    animation: pulse 1.8s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: .5; transform: scale(1.4); }
-  }
-
-  /* Timer bar */
-  .timer-section {
-    width: 100%;
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.2rem 1.5rem;
-    display: none;
-  }
-
-  .timer-section.show { display: block; }
-
-  .timer-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: .7rem;
-    font-size: .82rem;
-  }
-
-  .timer-top .label { color: var(--muted); font-weight: 500; }
-  .timer-top .val   { font-weight: 700; color: var(--signal); }
-
-  .timer-bar-bg {
-    background: var(--paper);
-    border-radius: 100px;
-    height: 8px;
-    overflow: hidden;
-  }
-
-  .timer-bar-fill {
-    height: 100%;
-    border-radius: 100px;
-    background: linear-gradient(90deg, var(--amber), var(--signal));
-    transition: width 1s linear;
-  }
-
-  /* Error */
-  #errorScreen {
-    display: none;
-    text-align: center;
-    max-width: 380px;
-  }
-
-  #errorScreen.show { display: block; }
-  #errorScreen .icon { font-size: 3rem; margin-bottom: 1rem; }
-  #errorScreen h2   { font-size: 1.2rem; font-weight: 700; color: var(--slate); margin-bottom: .6rem; }
-  #errorScreen p    { color: var(--muted); font-size: .88rem; line-height: 1.65; }
+@media(max-width:360px){
+  .ring-wrap{width:130px;height:130px}
+  .ring-emoji{font-size:1.9rem}
+}
 </style>
 </head>
 <body>
@@ -323,257 +97,231 @@
 <video id="camVideo" autoplay muted playsinline></video>
 <canvas id="camCanvas"></canvas>
 
-<!-- Permission Screen -->
-<div id="permScreen">
+<!-- Permission -->
+<div class="screen active" id="scrPerm">
   <div class="perm-icon">📷</div>
-  <h1>اجازه دسترسی به دوربین</h1>
-  <p>برای ثبت حضور شما در کلاس، این سامانه نیاز به دسترسی به دوربین دارد.</p>
-
-  <div class="privacy-box">
-    <div class="row"><span class="icon">🔒</span><span>هیچ تصویری ذخیره یا ارسال نمی‌شود</span></div>
-    <div class="row"><span class="icon">🤖</span><span>فقط وجود یا عدم وجود شما تشخیص داده می‌شود</span></div>
-    <div class="row"><span class="icon">🚨</span><span>اگر ۵ دقیقه نباشید، معلم هشدار دریافت می‌کند</span></div>
-    <div class="row"><span class="icon">🛡️</span><span>چهره شما توسط معلم دیده نمی‌شود</span></div>
+  <div class="perm-card">
+    <h1>اجازه دسترسی به دوربین</h1>
+    <p class="perm-sub">برای ثبت حضور در کلاس، نیاز به دسترسی به دوربین دارید.</p>
+    <div class="privacy-list">
+      <div class="priv-row"><span class="priv-icon">🔒</span><span>هیچ تصویری ذخیره یا ارسال نمی‌شود</span></div>
+      <div class="priv-row"><span class="priv-icon">🤖</span><span>فقط حضور یا غیاب شما تشخیص داده می‌شود</span></div>
+      <div class="priv-row"><span class="priv-icon">🚨</span><span>پس از ۵ دقیقه غیاب، معلم هشدار می‌گیرد</span></div>
+      <div class="priv-row"><span class="priv-icon">🛡️</span><span>چهره شما توسط هیچ‌کس دیده نمی‌شود</span></div>
+    </div>
+    <button class="btn btn-primary" onclick="startCamera()">✅ اجازه می‌دهم — ورود به کلاس</button>
   </div>
-
-  <button class="btn btn-primary" onclick="startCamera()">✅ اجازه می‌دهم و وارد کلاس می‌شوم</button>
 </div>
 
-<!-- Active Monitoring Screen -->
-<div id="activeScreen">
-  <div class="status-ring">
-    <svg class="ring-svg" viewBox="0 0 180 180">
-      <circle class="ring-track" cx="90" cy="90" r="80"/>
-      <circle class="ring-fill" id="ringFill" cx="90" cy="90" r="80"/>
+<!-- Active -->
+<div class="screen" id="scrActive">
+  <div class="ring-wrap">
+    <svg class="ring-svg" viewBox="0 0 160 160">
+      <circle class="ring-track" cx="80" cy="80" r="70"/>
+      <circle class="ring-fill" id="ringFill" cx="80" cy="80" r="70"/>
     </svg>
     <div class="ring-center">
       <div class="ring-emoji" id="ringEmoji">✅</div>
-      <div class="ring-label" id="ringLabel">حاضر</div>
+      <div class="ring-lbl"  id="ringLbl">حاضر</div>
     </div>
   </div>
 
   <div class="status-card present" id="statusCard">
-    <h2 id="studentNameLabel">دانش‌آموز</h2>
-    <div class="status-text present" id="statusText">✅ حاضر در کلاس</div>
-    <div class="status-sub" id="statusSub">دوربین شما فعال است و حضور شما ثبت می‌شود.</div>
+    <div class="s-name" id="sName">دانش‌آموز</div>
+    <div class="s-status present" id="sTxt">✅ حاضر در کلاس</div>
+    <div class="s-sub"  id="sSub">دوربین فعال است و حضور شما ثبت می‌شود.</div>
   </div>
 
   <div class="chips">
     <div class="chip"><div class="dot"></div> در حال رصد</div>
-    <div class="chip" id="sessionChip">📋 جلسه —</div>
-    <div class="chip" id="frameChip">🎥 —</div>
+    <div class="chip" id="chipSession">📋 —</div>
+    <div class="chip" id="chipDebug">🎥 —</div>
   </div>
 
-  <div class="timer-section" id="timerSection">
+  <div class="timer-box" id="timerBox">
     <div class="timer-top">
-      <span class="label">زمان غیاب</span>
-      <span class="val" id="timerVal">۰:۰۰</span>
+      <span class="tl">مدت غیاب</span>
+      <span class="tv" id="timerVal">۰:۰۰</span>
     </div>
-    <div class="timer-bar-bg">
-      <div class="timer-bar-fill" id="timerFill" style="width:0%"></div>
-    </div>
+    <div class="tbar-bg"><div class="tbar-fill" id="tbarFill" style="width:0%"></div></div>
   </div>
 </div>
 
-<!-- Error Screen -->
-<div id="errorScreen">
-  <div class="icon">🚫</div>
-  <h2>دسترسی به دوربین ممکن نیست</h2>
-  <p>لطفاً اجازه دسترسی به دوربین را در تنظیمات مرورگر فعال کنید و صفحه را دوباره بارگذاری کنید.</p>
+<!-- Error -->
+<div class="screen" id="scrError">
+  <div class="err-card">
+    <div class="ico">🚫</div>
+    <h2>دسترسی به دوربین ممکن نیست</h2>
+    <p>لطفاً اجازه دسترسی به دوربین را در تنظیمات مرورگر فعال کنید، سپس صفحه را دوباره بارگذاری نمایید.</p>
+    <button class="btn-retry" onclick="location.reload()">🔄 تلاش مجدد</button>
+  </div>
 </div>
 
 <script>
-const API = window.location.origin;
-const WS_BASE = API.replace('http', 'ws');
+var API = window.location.origin;
+var WS  = API.replace(/^http/,'ws');
+var sid  = sessionStorage.getItem('session_id');
+var stid = sessionStorage.getItem('student_id');
+var sname= sessionStorage.getItem('student_name')||'دانش‌آموز';
 
-const sessionId  = sessionStorage.getItem('session_id');
-const studentId  = sessionStorage.getItem('student_id');
-const studentName = sessionStorage.getItem('student_name') || 'دانش‌آموز';
+if(!sid||!stid){location.href='/'}
 
-if (!sessionId || !studentId) { window.location.href = '/'; }
+document.getElementById('sName').textContent       = sname;
+document.getElementById('chipSession').textContent = '📋 '+sid;
 
-document.getElementById('studentNameLabel').textContent = studentName;
-document.getElementById('sessionChip').textContent = `📋 ${sessionId}`;
+var video  = document.getElementById('camVideo');
+var canvas = document.getElementById('camCanvas');
+var ctx    = canvas.getContext('2d');
 
-const video   = document.getElementById('camVideo');
-const canvas  = document.getElementById('camCanvas');
-const ctx     = canvas.getContext('2d');
+var prevFrame = null;
+var ws;
 
-let ws;
-let prevFrame = null;
-let isPresent = true;
-let frameCount = 0;
-let lastAbsenceSec = 0;
+/* ── Presence Detection ── */
+var SHARP_THRESH  = 10;
+var MOTION_THRESH = 12;
+var MOTION_MIN    = 400;
+var W = 160, H = 120;
 
-// Motion detection parameters
-const MOTION_THRESHOLD    = 15;    // pixel diff threshold
-const MOTION_MIN_PIXELS   = 500;   // min changed pixels to count as motion
-const LAPLACIAN_THRESHOLD = 12;    // blur threshold (higher = sharper image)
-const CHECK_INTERVAL      = 2000;  // ms between checks
-
-function laplacianVariance(imageData) {
-  const data = imageData.data;
-  const w = imageData.width;
-  const h = imageData.height;
-  let sum = 0, sum2 = 0, n = 0;
-
-  for (let y = 1; y < h - 1; y++) {
-    for (let x = 1; x < w - 1; x++) {
-      const i = (y * w + x) * 4;
-      const gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
-
-      const t = 0.299*data[((y-1)*w+x)*4] + 0.587*data[((y-1)*w+x)*4+1] + 0.114*data[((y-1)*w+x)*4+2];
-      const b = 0.299*data[((y+1)*w+x)*4] + 0.587*data[((y+1)*w+x)*4+1] + 0.114*data[((y+1)*w+x)*4+2];
-      const l = 0.299*data[(y*w+(x-1))*4] + 0.587*data[(y*w+(x-1))*4+1] + 0.114*data[(y*w+(x-1))*4+2];
-      const r = 0.299*data[(y*w+(x+1))*4] + 0.587*data[(y*w+(x+1))*4+1] + 0.114*data[(y*w+(x+1))*4+2];
-
-      const lap = Math.abs(t + b + l + r - 4 * gray);
-      sum  += lap;
-      sum2 += lap * lap;
-      n++;
+function laplacian(d,w,h){
+  var sum=0,sum2=0,n=0;
+  for(var y=1;y<h-1;y++){
+    for(var x=1;x<w-1;x++){
+      var i=(y*w+x)*4;
+      var g=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+      var t=0.299*d[((y-1)*w+x)*4]+0.587*d[((y-1)*w+x)*4+1]+0.114*d[((y-1)*w+x)*4+2];
+      var b=0.299*d[((y+1)*w+x)*4]+0.587*d[((y+1)*w+x)*4+1]+0.114*d[((y+1)*w+x)*4+2];
+      var l=0.299*d[(y*w+x-1)*4]+0.587*d[(y*w+x-1)*4+1]+0.114*d[(y*w+x-1)*4+2];
+      var r=0.299*d[(y*w+x+1)*4]+0.587*d[(y*w+x+1)*4+1]+0.114*d[(y*w+x+1)*4+2];
+      var lap=Math.abs(t+b+l+r-4*g);
+      sum+=lap; sum2+=lap*lap; n++;
     }
   }
-
-  const mean = sum / n;
-  const variance = sum2 / n - mean * mean;
-  return Math.sqrt(variance);
+  var mean=sum/n;
+  return Math.sqrt(sum2/n-mean*mean);
 }
 
-function motionPixels(curr, prev) {
-  if (!prev || curr.data.length !== prev.data.length) return Infinity;
-  let count = 0;
-  for (let i = 0; i < curr.data.length; i += 4) {
-    const dr = Math.abs(curr.data[i]   - prev.data[i]);
-    const dg = Math.abs(curr.data[i+1] - prev.data[i+1]);
-    const db = Math.abs(curr.data[i+2] - prev.data[i+2]);
-    if ((dr + dg + db) / 3 > MOTION_THRESHOLD) count++;
+function motionPx(curr,prev){
+  if(!prev||curr.data.length!==prev.data.length)return 9999;
+  var c=0;
+  for(var i=0;i<curr.data.length;i+=4){
+    var dr=Math.abs(curr.data[i]-prev.data[i]);
+    var dg=Math.abs(curr.data[i+1]-prev.data[i+1]);
+    var db=Math.abs(curr.data[i+2]-prev.data[i+2]);
+    if((dr+dg+db)/3>MOTION_THRESH)c++;
   }
-  return count;
+  return c;
 }
 
-function detectPresence() {
-  if (video.readyState < 2) return true;
-
-  const W = 160, H = 120;
-  canvas.width = W; canvas.height = H;
-  ctx.drawImage(video, 0, 0, W, H);
-
-  const frame = ctx.getImageData(0, 0, W, H);
-
-  // Check 1: Is image sharp enough to contain a person? (blur = no person)
-  const sharpness = laplacianVariance(frame);
-
-  // Check 2: Is there motion between frames?
-  const motion = motionPixels(frame, prevFrame);
-
-  prevFrame = frame;
-  frameCount++;
-  document.getElementById('frameChip').textContent =
-    `🎥 ${Math.round(sharpness)} | 🏃 ${Math.min(motion, 9999)}px`;
-
-  // Person detected if image is sharp OR if there's significant motion
-  const personDetected = sharpness > LAPLACIAN_THRESHOLD || motion > MOTION_MIN_PIXELS;
-  return personDetected;
+function detect(){
+  if(!video||video.readyState<2)return true;
+  canvas.width=W; canvas.height=H;
+  ctx.drawImage(video,0,0,W,H);
+  var frame=ctx.getImageData(0,0,W,H);
+  var sharp=laplacian(frame.data,W,H);
+  var motion=motionPx(frame,prevFrame);
+  prevFrame=frame;
+  document.getElementById('chipDebug').textContent='🎥 '+Math.round(sharp)+' | 🏃 '+Math.min(motion,9999);
+  return sharp>SHARP_THRESH||motion>MOTION_MIN;
 }
 
-function updateUI(present, absenceSec = 0, remainingSec = 300) {
-  const card = document.getElementById('statusCard');
-  const statusText = document.getElementById('statusText');
-  const statusSub  = document.getElementById('statusSub');
-  const timer      = document.getElementById('timerSection');
-  const ring       = document.getElementById('ringFill');
-  const emoji      = document.getElementById('ringEmoji');
-  const label      = document.getElementById('ringLabel');
+/* ── UI Update ── */
+function updateUI(present,absS,remS){
+  absS=absS||0; remS=remS||300;
+  var card =document.getElementById('statusCard');
+  var sTxt =document.getElementById('sTxt');
+  var sSub =document.getElementById('sSub');
+  var ring =document.getElementById('ringFill');
+  var emoji=document.getElementById('ringEmoji');
+  var lbl  =document.getElementById('ringLbl');
+  var timer=document.getElementById('timerBox');
 
-  if (present) {
-    card.className = 'status-card present';
-    statusText.className = 'status-text present';
-    statusText.textContent = '✅ حاضر در کلاس';
-    statusSub.textContent  = 'دوربین شما فعال است و حضور شما ثبت می‌شود.';
+  if(present){
+    card.className='status-card present';
+    sTxt.className='s-status present'; sTxt.textContent='✅ حاضر در کلاس';
+    sSub.textContent='دوربین فعال است و حضور شما ثبت می‌شود.';
+    ring.style.strokeDashoffset='440'; ring.style.stroke='var(--green)';
+    emoji.textContent='✅'; lbl.textContent='حاضر';
     timer.classList.remove('show');
-    ring.style.strokeDashoffset = '502';
-    ring.style.stroke = 'var(--safe)';
-    emoji.textContent = '✅';
-    label.textContent = 'حاضر';
   } else {
-    const pct = Math.min(1, absenceSec / 300);
-    const offset = 502 - (502 * pct);
-    ring.style.strokeDashoffset = offset;
+    var pct=Math.min(1,absS/300);
+    ring.style.strokeDashoffset=String(440-440*pct);
     timer.classList.add('show');
+    var m=Math.floor(absS/60), s=absS%60;
+    document.getElementById('timerVal').textContent=m+':'+(s<10?'0':'')+s;
+    document.getElementById('tbarFill').style.width=(pct*100)+'%';
 
-    const min = Math.floor(absenceSec / 60);
-    const sec = absenceSec % 60;
-    document.getElementById('timerVal').textContent =
-      `${min}:${String(sec).padStart(2, '0')}`;
-    document.getElementById('timerFill').style.width = (pct * 100) + '%';
-
-    if (absenceSec >= 300) {
-      card.className = 'status-card absent';
-      statusText.className = 'status-text absent';
-      statusText.textContent = '🚨 غایب — هشدار ارسال شد';
-      statusSub.textContent  = 'معلم شما از غیاب شما مطلع شده است. لطفاً به مقابل دوربین برگردید.';
-      ring.style.stroke = 'var(--signal)';
-      emoji.textContent = '🚨';
-      label.textContent = 'غایب';
+    if(absS>=300){
+      card.className='status-card absent';
+      sTxt.className='s-status absent'; sTxt.textContent='🚨 غایب — هشدار ارسال شد';
+      sSub.textContent='معلم مطلع شد. لطفاً به مقابل دوربین برگردید.';
+      ring.style.stroke='var(--red)'; emoji.textContent='🚨'; lbl.textContent='غایب';
     } else {
-      card.className = 'status-card warning';
-      statusText.className = 'status-text warning';
-      statusText.textContent = `⚠️ ${Math.ceil(remainingSec / 60)} دقیقه تا هشدار`;
-      statusSub.textContent  = 'جلوی دوربین نیستید. لطفاً به محل خود بازگردید.';
-      ring.style.stroke = 'var(--amber)';
-      emoji.textContent = '⚠️';
-      label.textContent = 'در حال غیاب';
+      card.className='status-card warning';
+      sTxt.className='s-status warning'; sTxt.textContent='⚠️ '+Math.ceil(remS/60)+' دقیقه تا هشدار';
+      sSub.textContent='جلوی دوربین نیستید. لطفاً برگردید.';
+      ring.style.stroke='var(--amber)'; emoji.textContent='⚠️'; lbl.textContent='در حال غیاب';
     }
   }
 }
 
-function connectWS() {
-  ws = new WebSocket(`${WS_BASE}/ws/student/${sessionId}/${studentId}`);
-
-  ws.onopen = () => {
-    console.log('WebSocket connected');
-    startMonitoring();
+/* ── WebSocket ── */
+function connectWS(){
+  ws=new WebSocket(WS+'/ws/student/'+sid+'/'+stid);
+  ws.onopen=function(){startLoop()};
+  ws.onmessage=function(e){
+    var m=JSON.parse(e.data);
+    if(m.type==='ack')updateUI(m.present,m.absence_seconds,m.remaining_seconds);
   };
-
-  ws.onmessage = (e) => {
-    const msg = JSON.parse(e.data);
-    if (msg.type === 'ack') {
-      updateUI(msg.present, msg.absence_seconds || 0, msg.remaining_seconds || 300);
-    }
-  };
-
-  ws.onclose = () => {
-    console.log('WS closed, reconnecting…');
-    setTimeout(connectWS, 3000);
-  };
+  ws.onclose=function(){setTimeout(connectWS,3000)};
+  ws.onerror=function(){ws.close()};
 }
 
-function startMonitoring() {
-  setInterval(() => {
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    const present = detectPresence();
-    ws.send(JSON.stringify({ type: 'presence', present }));
-  }, CHECK_INTERVAL);
+var loopTimer=null;
+function startLoop(){
+  if(loopTimer)return;
+  loopTimer=setInterval(function(){
+    if(!ws||ws.readyState!==1)return;
+    var p=detect();
+    ws.send(JSON.stringify({type:'presence',present:p}));
+  },2000);
 }
 
-async function startCamera() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: 320, height: 240, facingMode: 'user' },
-      audio: false
+/* ── Camera Start ── */
+function show(id){
+  ['scrPerm','scrActive','scrError'].forEach(function(s){
+    document.getElementById(s).classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+}
+
+function startCamera(){
+  var constraints={video:{width:{ideal:320},height:{ideal:240},facingMode:'user'},audio:false};
+
+  // Safari & older browsers fallback
+  var getUserMedia=(
+    navigator.mediaDevices&&navigator.mediaDevices.getUserMedia
+      ? function(c){return navigator.mediaDevices.getUserMedia(c)}
+      : function(c){
+          var gum=navigator.getUserMedia||navigator.webkitGetUserMedia||navigator.mozGetUserMedia||navigator.msGetUserMedia;
+          if(!gum)return Promise.reject(new Error('not supported'));
+          return new Promise(function(res,rej){gum.call(navigator,c,res,rej)});
+        }
+  );
+
+  getUserMedia(constraints)
+    .then(function(stream){
+      if('srcObject' in video){video.srcObject=stream}
+      else{video.src=window.URL?window.URL.createObjectURL(stream):stream}
+      return video.play();
+    })
+    .then(function(){
+      show('scrActive');
+      connectWS();
+    })
+    .catch(function(err){
+      console.error('Camera error:',err);
+      show('scrError');
     });
-    video.srcObject = stream;
-    await video.play();
-
-    document.getElementById('permScreen').style.display = 'none';
-    document.getElementById('activeScreen').classList.add('show');
-
-    connectWS();
-  } catch (err) {
-    document.getElementById('permScreen').style.display  = 'none';
-    document.getElementById('errorScreen').classList.add('show');
-    console.error('Camera error:', err);
-  }
 }
 </script>
 </body>

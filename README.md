@@ -1,54 +1,34 @@
-# سامانه حضور هوشمند کلاس 📡
+# سامانه حضور هوشمند 📡
 
-سیستم تشخیص حضور دانش‌آموز بر پایه دوربین — با حفظ کامل حریم خصوصی.
+سیستم تشخیص حضور دانش‌آموز بر پایه دوربین با حفظ کامل حریم خصوصی.
 
-## ویژگی‌ها
-
-- ✅ تشخیص حضور/غیاب بدون ذخیره تصویر
-- ⏱️ هشدار ۵ دقیقه‌ای به معلم
-- 📡 آپدیت لحظه‌ای از طریق WebSocket
-- 🔒 معلم هرگز چهره دانش‌آموز را نمی‌بیند
-- 💫 UI فارسی راست‌چین با طراحی حرفه‌ای
-
-## نحوه راه‌اندازی
+## اجرای محلی
 
 ```bash
-# نصب وابستگی‌ها
 pip install -r requirements.txt
-
-# اجرا
-uvicorn backend.main:app --reload --port 8000
+uvicorn main:app --reload --port 8000
 ```
 
 سپس به آدرس `http://localhost:8000` بروید.
 
 ## دیپلوی روی Render.com
 
-1. کد را روی GitHub آپلود کنید
-2. به [render.com](https://render.com) بروید
-3. New → Web Service → از GitHub
-4. فایل `render.yaml` به صورت خودکار تنظیمات را اعمال می‌کند
+1. این پوشه را روی GitHub آپلود کنید
+2. در Render: New → Web Service → Connect Repository
+3. تنظیمات:
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
+4. فایل `render.yaml` تنظیمات را خودکار اعمال می‌کند
 
-## ساختار پروژه
+## ساختار
 
 ```
-student-monitor/
-├── backend/
-│   └── main.py          # FastAPI + WebSocket
-├── frontend/
-│   ├── index.html        # صفحه اصلی
-│   ├── teacher.html      # داشبورد معلم
-│   └── student.html      # صفحه دانش‌آموز
+monitor/
+├── main.py              ← FastAPI + WebSocket
 ├── requirements.txt
-└── render.yaml
+├── render.yaml
+└── frontend/
+    ├── index.html       ← صفحه اصلی
+    ├── teacher.html     ← داشبورد معلم
+    └── student.html     ← صفحه دانش‌آموز
 ```
-
-## چطور کار می‌کند؟
-
-**الگوریتم تشخیص حضور:**
-1. **Laplacian Variance:** اگر تصویر کاملاً تار باشد (هیچ‌کس جلوی دوربین نیست)، مقدار پایین است
-2. **تشخیص حرکت:** تفاوت پیکسل‌ها بین فریم‌های متوالی
-3. ترکیب هر دو: اگر تصویر واضح باشد یا حرکت وجود داشته باشد → دانش‌آموز حاضر است
-
-**جریان کار:**
-- دانش‌آموز → دوربین → تشخیص محلی → WebSocket → سرور → داشبورد معلم
